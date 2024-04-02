@@ -3,16 +3,16 @@ package com.AmazonClone.Seller.Service;
 import com.AmazonClone.Seller.Model.Book;
 import com.AmazonClone.Seller.Repository.BookRepository;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,32 +23,59 @@ public class BookService {
     private BookRepository bookRepository;
 
      // Add books from Excel file
-    public List<Book> addBooksFromExcel(MultipartFile file) throws IOException {
-        List<Book> books = new ArrayList<>();
-        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+    public void addBooksFromExcel(InputStream inputStream) throws IOException {
+        Workbook workbook = new XSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0); // Assuming data is in the first sheet
-        
-        for (Row row : sheet) {
-            if (row.getRowNum() == 0) continue; // Skip header row
-            
-            Book book = new Book();
-            book.setIsbn(row.getCell(0).getStringCellValue());
-            book.setTitle(row.getCell(1).getStringCellValue());
-            book.setAuthor(row.getCell(2).getStringCellValue());
-            book.setDescription(row.getCell(3).getStringCellValue());
-            book.setEdition((int) row.getCell(4).getNumericCellValue());
-            book.setPublisher(row.getCell(5).getStringCellValue());
-            book.setQuantity((int) row.getCell(6).getNumericCellValue());
-            book.setPrice(row.getCell(7).getNumericCellValue());
+        Iterator<Row> rows = sheet.iterator();
 
-            books.add(book);
+        // Skipping the header row assuming it contains column names
+        if (rows.hasNext()) {
+            rows.next();
         }
 
-       workbook.close();
-        // Save all books to the database
-        return bookRepository.saveAll(books);
-    }
+        while (rows.hasNext()) {
+            Row currentRow = rows.next();
+            Iterator<Cell> cellsInRow = currentRow.iterator();
 
+            Book book = new Book();
+            int cellIndex = 0;
+            while (cellsInRow.hasNext()) {
+                Cell currentCell = cellsInRow.next();
+                switch (cellIndex) {
+                    case 0:
+                        book.setIsbn(currentCell.getStringCellValue());
+                        break;
+                    case 1:
+                        book.setTitle(currentCell.getStringCellValue());
+                        break;
+                    case 2:
+                        book.setAuthor(currentCell.getStringCellValue());
+                        break;
+                    case 3:
+                        book.setDescription(currentCell.getStringCellValue());
+                        break;
+                    case 4:
+                        book.setEdition((int) currentCell.getNumericCellValue());
+                        break;
+                    case 5:
+                        book.setPublisher(currentCell.getStringCellValue());
+                        break;
+                    case 6:
+                        book.setQuantity((int) currentCell.getNumericCellValue());
+                        break;
+                    case 7:
+                        book.setPrice(currentCell.getNumericCellValue());
+                        break;
+                    default:
+                        // Handle additional columns if needed
+                }
+                cellIndex++;
+            }
+            bookRepository.save(book);
+        }
+
+        workbook.close();
+    }
     // Get all books
     public List<Book> getAllBooks() {
         return bookRepository.findAll();

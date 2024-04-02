@@ -1,6 +1,7 @@
 package com.AmazonClone.Seller.Controller;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,15 +28,21 @@ public class BookController {
 
     @Autowired
     private BookService bookService;
-
-   // Upload books from Excel file
-    @PostMapping("/upload")
+    
+    @PostMapping("/upload/books")
     public ResponseEntity<String> uploadBooksFromExcel(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return new ResponseEntity<>("Please select a file!", HttpStatus.BAD_REQUEST);
+        }
+
         try {
-            List<Book> addedBooks = bookService.addBooksFromExcel(file);
-            return ResponseEntity.ok().body("Successfully added " + addedBooks.size() + " books from Excel.");
+            InputStream inputStream = file.getInputStream();
+            bookService.addBooksFromExcel(inputStream);
+            inputStream.close();
+            return new ResponseEntity<>("File uploaded successfully!", HttpStatus.OK);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload books from Excel.");
+            e.printStackTrace();
+            return new ResponseEntity<>("Failed to upload file!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
