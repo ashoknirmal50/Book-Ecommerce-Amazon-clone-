@@ -1,4 +1,4 @@
-PROJECT dESCRIPTON 
+PROJECT DESCRIPTON 
 ### For Users (Book Shoppers):
 1. **Browsing and Searching:**
    - Users can browse the website either as guests or by logging in as registered users.
