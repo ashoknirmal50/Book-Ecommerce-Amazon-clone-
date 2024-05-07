@@ -61,6 +61,14 @@ public class Book {
     @DecimalMin(value = "10.0", inclusive = true, message = "Price must be greater than 10") 
     private double price;
 
+    @Column(name = "genre")
+    // Genre of the book, ensuring it is not blank
+    @NotBlank(message = "Genre cannot be blank") 
+    private String genre;
+
+    @Column(name = "imageUrl")
+    private String imageUrl;
+
     public Book(){
         
     }

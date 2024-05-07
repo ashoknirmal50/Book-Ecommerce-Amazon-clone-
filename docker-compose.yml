@@ -1,0 +1,10 @@
+services:
+  mysqldb:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_DATABASE: AmazonClone
+      MYSQL_USER: bookadmin
+      MYSQL_PASSWORD: pass123
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'

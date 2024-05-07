@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.AmazonClone.Seller.Model.Book;
 
 @Repository
-public interface BookRepository extends JpaRepository<Book,Long>{
-    
+public interface AdminBookRepository extends JpaRepository<Book, Integer>{
+
 }

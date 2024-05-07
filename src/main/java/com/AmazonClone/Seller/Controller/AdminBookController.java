@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,17 +21,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.AmazonClone.Seller.Model.Book;
-import com.AmazonClone.Seller.Service.BookService;
+import com.AmazonClone.Seller.Service.AdminBookService;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 @RestController
-@RequestMapping("/Seller")
-public class BookController {
+@RequestMapping("/admin")
+public class AdminBookController {
 
     @Autowired
-    private BookService bookService;
+    private AdminBookService bookService;
     
-    @PostMapping("/upload/books")
-    public ResponseEntity<String> uploadBooksFromExcel(@RequestParam("file") MultipartFile file) {
+    //To upload the data from excel to mySQL database
+    @ApiOperation(value = "Upload a file")
+    @PostMapping(value = "/upload/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadBooksFromExcel(@ApiParam(value = "File to upload", required = true)@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return new ResponseEntity<>("Please select a file!", HttpStatus.BAD_REQUEST);
         }
@@ -93,12 +99,4 @@ public class BookController {
         }
     }
 
-    // Search for books by title, author, and edition
-    @GetMapping("/search")
-    public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) String title,
-                                                   @RequestParam(required = false) String author,
-                                                   @RequestParam(required = false) Integer edition) {
-        List<Book> books = bookService.searchBooks(title, author, edition);
-        return ResponseEntity.ok().body(books);
-    }
 }
